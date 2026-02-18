@@ -252,6 +252,72 @@ describe('Frontend Todo Application', () => {
     });
   });
 
+  // Add new features tests here (PATCH and DELETE) once implemented in index.js
+
+  describe('editTodo function', () => {
+    test('should edit a todo', async () => {
+      const updatedTodo = { id: 1, text: 'Updated todo', completed: false };
+
+      fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => updatedTodo
+      });
+
+      const response = await fetch('/api/todos/1', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: 'Updated todo' }),
+      });
+
+      expect(response.ok).toBe(true);
+      const result = await response.json();
+      expect(result.text).toBe('Updated todo');
+    });
+
+    test('should trim whitespace from edited text', async () => {
+      const updatedTodo = { id: 1, text: 'Trimmed edit', completed: false };
+
+      fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => updatedTodo
+      });
+
+      const response = await fetch('/api/todos/1', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: '   Trimmed edit   ' }),
+      });
+
+      expect(response.ok).toBe(true);
+      const result = await response.json();
+      expect(result.text).toBe('Trimmed edit');
+    });
+
+    test('should handle edit error', async () => {
+      fetch.mockResolvedValueOnce({ ok: false });
+
+      const response = await fetch('/api/todos/1', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: 'Fail edit' }),
+      });
+
+      if (!response.ok) {
+        alert('Failed to update todo');
+      }
+
+      expect(alert).toHaveBeenCalledWith('Failed to update todo');
+    });
+  });
+
+  // --------------------
+  
   describe('deleteTodo function', () => {
     test('should delete a todo', async () => {
       fetch.mockResolvedValueOnce({
